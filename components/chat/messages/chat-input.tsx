@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Message } from '@/types/types';
 import { useChatStore } from '@/store/chat.store';
 import { getChatResponse } from '@/actions/get-chat-response';
+import { saveMessage } from '@/actions/save-message';
 
 const ChatInput: React.FC = () => {
 
@@ -25,6 +26,7 @@ const ChatInput: React.FC = () => {
   const handleSend = async () => {
     if (message.trim() === '') return;
     setIsChatLoading(true);
+    scrollToBottom();
 
     // create a new message id
     const userMessageId = uuidv4();
@@ -37,21 +39,36 @@ const ChatInput: React.FC = () => {
     addMessage(newMessage);
     setMessage('');
 
+    // save the message to the db
+    await saveMessage(
+      localStorage.getItem('sessionId')!,
+      userMessageId,
+      'user',
+      message
+    )
+
     // send chat message to the ai get the response
     const aiMessageId = uuidv4();
     const aiMessage: Message = {
       sessionId: localStorage.getItem('sessionId')!,
       messageId: aiMessageId,
       by: 'ai',
-      content: 'AI thinking ...'
+      content: 'සෝමපාල මාමා හිතන ගමන් ...'
     };
     addMessage(aiMessage);
 
     const response = await getChatResponse(message, localStorage.getItem('sessionId')!);
     if (response.success) {
       editMessage(aiMessageId, response.answer);
+      await saveMessage(
+        localStorage.getItem('sessionId')!,
+        aiMessageId,
+        'ai',
+        response.answer
+      )
     };
     setIsChatLoading(false);
+    scrollToBottom();
   }
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -61,6 +78,13 @@ const ChatInput: React.FC = () => {
     }
   };
 
+  const scrollToBottom = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 p-1">
       <div
@@ -68,7 +92,7 @@ const ChatInput: React.FC = () => {
         style={{ position: "relative" }}
       >
         <TextareaAutosize
-          placeholder="How can I help?"
+          placeholder="සෝමපාල මාමාගෙන් අහන්න"
           className={`
           chat-input-desktop 
           text-xs sm:text-sm text-slate-800

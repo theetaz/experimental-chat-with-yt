@@ -23,4 +23,22 @@ export const subtitles = pgTable(
   }
 );
 
+export const messages = pgTable(
+  "messages",
+  {
+    id: serial("id").primaryKey(),
+    sessionId: text("session_id").notNull(),
+    messageId: text("message_id").notNull(),
+    userType: text("user_type").notNull(),
+    message: text("message").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull()
+  },
+  (table) => {
+    return {
+      messageIdIdx: uniqueIndex("message_id_idx").on(table.messageId)
+    };
+  }
+);
+
 export type Subtitle = typeof subtitles.$inferSelect;
+export type Message = typeof messages.$inferSelect;
