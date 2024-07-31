@@ -32,13 +32,14 @@ const ChatInput: React.FC = () => {
     for await (const delta of readStreamableValue(output)) {
       fullResponse += delta;
       editMessage(messageId, fullResponse);
-      await saveMessage(
-        localStorage.getItem('sessionId')!,
-        messageId,
-        'ai',
-        fullResponse
-      )
     }
+
+    await saveMessage(
+      localStorage.getItem('sessionId')!,
+      messageId,
+      'ai',
+      fullResponse
+    )
   }
 
   const handleSend = async () => {
