@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.34",
+    "@ai-sdk/openai": "^0.0.40",
     "@anthropic-ai/sdk": "^0.24.3",
     "@hookform/resolvers": "^3.9.0",
     "@neondatabase/serverless": "^0.9.4",
@@ -21,6 +23,7 @@
     "@supabase/supabase-js": "^2.44.4",
     "@types/uuid": "^10.0.0",
     "@uiw/react-markdown-preview": "^5.1.2",
+    "ai": "^3.2.41",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",

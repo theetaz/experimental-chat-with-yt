@@ -7,8 +7,9 @@ import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from 'uuid';
 import { Message } from '@/types/types';
 import { useChatStore } from '@/store/chat.store';
-import { getChatResponse } from '@/actions/get-chat-response';
 import { saveMessage } from '@/actions/save-message';
+import { generate } from '@/actions/generete';
+import { readStreamableValue } from 'ai/rsc';
 
 const ChatInput: React.FC = () => {
 
@@ -22,6 +23,23 @@ const ChatInput: React.FC = () => {
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [message]);
+
+  async function sendStreamRequest(userQuestion: string, sessionId: string, messageId: string) {
+
+    let fullResponse = '';
+    const { output } = await generate(userQuestion, sessionId);
+
+    for await (const delta of readStreamableValue(output)) {
+      fullResponse += delta;
+      editMessage(messageId, fullResponse);
+      await saveMessage(
+        localStorage.getItem('sessionId')!,
+        messageId,
+        'ai',
+        fullResponse
+      )
+    }
+  }
 
   const handleSend = async () => {
     if (message.trim() === '') return;
@@ -57,16 +75,7 @@ const ChatInput: React.FC = () => {
     };
     addMessage(aiMessage);
 
-    const response = await getChatResponse(message, localStorage.getItem('sessionId')!);
-    if (response.success) {
-      editMessage(aiMessageId, response.answer);
-      await saveMessage(
-        localStorage.getItem('sessionId')!,
-        aiMessageId,
-        'ai',
-        response.answer
-      )
-    };
+    sendStreamRequest(message, localStorage.getItem('sessionId')!, aiMessageId);
     setIsChatLoading(false);
     scrollToBottom();
   }

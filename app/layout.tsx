@@ -24,6 +24,9 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
+export const runtime = 'edge';
+export const maxDuration = 30;
+
 export default function RootLayout({
   children,
 }: Readonly<{
